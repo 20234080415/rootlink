@@ -20,8 +20,9 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-006：最小 Family 读取 API
 - Task-007：只读 Member detail API
 - Task-008：只读 family graph payload API
+- Task-009：只读 Family Dashboard 页面
 
-当前还没有实现业务流程页面或接口逻辑。
+当前还没有实现登录、成员 CRUD、图谱编辑等页面逻辑。
 
 ## 技术栈
 
@@ -124,6 +125,14 @@ GET /api/v1/families/{familyId}/graph
 
 该接口返回 family 基本信息、成员节点（nodes）和关系边（edges），数据格式适配 React Flow。nodes 来自 member 表，edges 来自 relationship 表。不包含图谱编辑、前端页面或登录鉴权。
 
+打开 family dashboard 页面：
+
+```bash
+http://localhost:3000/families/{familyId}
+```
+
+该页面展示 family 名称、统计卡片（成员数、关系数、传记数、时间线事件数）和 View Graph 导航按钮。支持 loading 骨架屏和错误状态。
+
 成功响应格式：
 
 ```json
@@ -160,7 +169,7 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 
 - 登录
 - API 业务逻辑（健康检查、最小 Family 读取、只读 Member detail、只读 graph payload 除外）
-- 成员 CRUD
+- 成员 CRUD 页面和接口
 - 关系图编辑
 - AI
 - 上传
@@ -168,4 +177,4 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 
 ## 下一步建议
 
-Task-009：实现 member 创建 API 或 family dashboard 完善，继续复用统一响应和错误工具。
+Task-010：实现 Family Graph 前端页面（`/families/[familyId]/graph`），调用 graph API 并使用 React Flow 渲染。
