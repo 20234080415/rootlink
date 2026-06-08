@@ -18,6 +18,7 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-005：统一 API 响应、错误、请求解析基础设施
 - Task-005：数据库健康检查接口改为统一响应格式
 - Task-006：最小 Family 读取 API
+- Task-007：只读 Member detail API
 
 当前还没有实现业务流程页面或接口逻辑。
 
@@ -106,6 +107,14 @@ GET /api/v1/families/{familyId}
 
 该接口当前只返回 family 基本信息和统计计数，不包含登录鉴权、成员列表、成员 CRUD 或关系图数据。
 
+读取 member detail：
+
+```bash
+GET /api/v1/families/{familyId}/members/{memberId}
+```
+
+该接口当前只返回单个 member 的基础资料、biography、timeline events 和关系摘要，不提供创建、更新、删除、上传或登录鉴权。
+
 成功响应格式：
 
 ```json
@@ -141,7 +150,7 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 ## 当前未实现
 
 - 登录
-- API 业务逻辑（健康检查和最小 Family 读取除外）
+- API 业务逻辑（健康检查、最小 Family 读取、只读 Member detail 除外）
 - 成员 CRUD
 - 关系图业务
 - AI
@@ -150,4 +159,4 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 
 ## 下一步建议
 
-Task-007：实现只读 Member detail API，继续复用统一响应和错误工具，但仍不做登录、创建、更新或删除。
+Task-008：实现只读 family graph payload API，继续复用统一响应和错误工具，不做图谱编辑。

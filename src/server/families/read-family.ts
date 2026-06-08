@@ -1,8 +1,5 @@
-import { ApiError, API_ERROR_CODES } from "@/server/api";
+import { ApiError, API_ERROR_CODES, assertUuid } from "@/server/api";
 import { prisma } from "@/server/db/prisma";
-
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export type FamilyDashboardSummary = {
   family: {
@@ -21,23 +18,10 @@ export type FamilyDashboardSummary = {
   };
 };
 
-function assertFamilyId(value: string) {
-  if (!UUID_PATTERN.test(value)) {
-    throw new ApiError(
-      API_ERROR_CODES.VALIDATION_ERROR,
-      "Family id must be a valid UUID.",
-      400,
-      {
-        familyId: "Expected a UUID.",
-      }
-    );
-  }
-}
-
 export async function readFamilyDashboardSummary(
   familyId: string
 ): Promise<FamilyDashboardSummary> {
-  assertFamilyId(familyId);
+  assertUuid(familyId, "familyId");
 
   const family = await prisma.family.findUnique({
     where: {
