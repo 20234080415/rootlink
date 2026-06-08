@@ -15,6 +15,8 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-003：Demo seed 数据
 - Task-004：Prisma Client 服务端封装
 - Task-004：数据库健康检查接口与本地检查脚本
+- Task-005：统一 API 响应、错误、请求解析基础设施
+- Task-005：数据库健康检查接口改为统一响应格式
 
 当前还没有实现业务流程页面或接口逻辑。
 
@@ -95,6 +97,27 @@ npm run db:health
 GET /api/health/db
 ```
 
+成功响应格式：
+
+```json
+{
+  "data": {},
+  "meta": {}
+}
+```
+
+失败响应格式：
+
+```json
+{
+  "error": {
+    "code": "DATABASE_UNAVAILABLE",
+    "message": "Database health check failed.",
+    "fieldErrors": {}
+  }
+}
+```
+
 Task-003 的 seed 会创建：
 
 - 1 个 demo family：`Tang Demo Family`
@@ -118,4 +141,4 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 
 ## 下一步建议
 
-Task-005：实现基础 API 响应格式与错误格式工具，对齐 `docs/api.md`，但仍不进入登录、CRUD 或图谱业务。
+Task-006：实现最小 Family 读取 API，复用 Task-005 的响应与错误工具，但仍不进入登录和成员 CRUD。
