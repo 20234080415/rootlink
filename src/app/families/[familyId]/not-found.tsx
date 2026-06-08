@@ -7,18 +7,17 @@ export default function FamilyNotFound() {
         <p className="text-6xl font-light text-slate-300">404</p>
 
         <h2 className="text-lg font-semibold text-slate-950">
-          Family not found
+          家族未找到
         </h2>
         <p className="max-w-md text-center text-sm text-slate-500">
-          The family you&apos;re looking for doesn&apos;t exist or may have been
-          removed.
+          未找到指定的家族，可能已不存在。
         </p>
 
         <Link
           href="/"
           className="mt-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
         >
-          Back to RootLink
+          返回 RootLink
         </Link>
       </section>
     </main>

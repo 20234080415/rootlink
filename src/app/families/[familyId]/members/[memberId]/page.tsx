@@ -5,11 +5,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 const ROLE_LABELS: Record<string, string> = {
-  SELF: "Self",
-  PROXY: "Proxy",
-  GUARDIAN: "Guardian",
-  FAMILY_ADMIN: "Admin",
-  ARCHIVIST: "Archivist",
+  SELF: "自述",
+  PROXY: "代录",
+  GUARDIAN: "监护人",
+  FAMILY_ADMIN: "管理员",
+  ARCHIVIST: "档案员",
 };
 
 function extractYear(dateStr: string | null): number | null {
@@ -66,9 +66,9 @@ export default async function MemberDetailPage({
     member.birthDate && member.deathDate
       ? `${formatDate(member.birthDate)} — ${formatDate(member.deathDate)}`
       : member.birthDate
-        ? `Born ${formatDate(member.birthDate)}`
+        ? `出生 ${formatDate(member.birthDate)}`
         : member.deathDate
-          ? `Died ${formatDate(member.deathDate)}`
+          ? `去世 ${formatDate(member.deathDate)}`
           : null;
 
   const parents = relationships.filter(
@@ -96,7 +96,7 @@ export default async function MemberDetailPage({
               href={`/families/${familyId}`}
               className="transition hover:text-slate-700"
             >
-              Family
+              家族
             </Link>
             {" / "}
             <span className="text-slate-700">{member.fullName}</span>
@@ -121,7 +121,7 @@ export default async function MemberDetailPage({
               >
                 <path d="M19 12H5M12 19l-7-7 7-7" />
               </svg>
-              Dashboard
+              仪表盘
             </Link>
             <Link
               href={`/families/${familyId}/graph`}
@@ -140,7 +140,7 @@ export default async function MemberDetailPage({
                 <line x1="7.32" y1="17.68" x2="12.68" y2="6.32" />
                 <line x1="16.68" y1="6.32" x2="17.32" y2="17.68" />
               </svg>
-              View Graph
+              查看图谱
             </Link>
           </div>
         </div>
@@ -165,7 +165,7 @@ export default async function MemberDetailPage({
               <div className="flex flex-wrap items-center gap-2">
                 {birthYear ? (
                   <span className="text-sm text-slate-600">
-                    {birthYear}{deathYear ? ` — ${deathYear}` : " — Present"}
+                    {birthYear}{deathYear ? ` — ${deathYear}` : " — 至今"}
                   </span>
                 ) : null}
                 {member.gender ? (
@@ -198,7 +198,7 @@ export default async function MemberDetailPage({
                 ) : null}
                 {member.claimedByUserId ? (
                   <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-green-600">
-                    Claimed
+                    已认领
                   </span>
                 ) : null}
               </div>
@@ -208,7 +208,7 @@ export default async function MemberDetailPage({
 
         <div className="grid gap-6 lg:grid-cols-2">
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-slate-900">Biography</h2>
+            <h2 className="text-lg font-semibold text-slate-900">传记</h2>
             {biography && biography.contentMd ? (
               <div className="rounded-lg border border-slate-200 bg-white p-4">
                 <div className="flex flex-wrap items-center gap-2 pb-3">
@@ -244,17 +244,17 @@ export default async function MemberDetailPage({
                   <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
                 <p className="text-sm font-medium text-slate-400">
-                  No biography yet
+                  暂无传记
                 </p>
                 <p className="text-xs text-slate-400">
-                  This member doesn&apos;t have a biography recorded.
+                  该成员尚未记录传记。
                 </p>
               </div>
             )}
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-slate-900">Timeline</h2>
+            <h2 className="text-lg font-semibold text-slate-900">时间线</h2>
             {hasTimeline ? (
               <div className="rounded-lg border border-slate-200 bg-white">
                 <ul className="divide-y divide-slate-100">
@@ -276,7 +276,7 @@ export default async function MemberDetailPage({
                               : event.eventDate
                                 ? formatDate(event.eventDate)
                                 : formatDate(event.sortDate)}
-                            {event.isApproximate ? " (approx.)" : ""}
+                            {event.isApproximate ? " （约）" : ""}
                           </p>
                           {event.description ? (
                             <p className="pt-1 text-xs leading-relaxed text-slate-500">
@@ -302,10 +302,10 @@ export default async function MemberDetailPage({
                   <path d="M15 15v.01M15 19v.01M19 15v.01M19 19v.01M23 15v.01M23 19v.01" />
                 </svg>
                 <p className="text-sm font-medium text-slate-400">
-                  No timeline events
+                  暂无时间线事件
                 </p>
                 <p className="text-xs text-slate-400">
-                  No life events have been recorded for this member yet.
+                  该成员暂无已记录的生命事件。
                 </p>
               </div>
             )}
@@ -314,35 +314,35 @@ export default async function MemberDetailPage({
 
         <section className="flex flex-col gap-3">
           <h2 className="text-lg font-semibold text-slate-900">
-            Relationships
+            关系
           </h2>
           {hasRelationships ? (
             <div className="flex flex-col gap-3 sm:flex-row">
               {parents.length > 0 ? (
                 <RelationshipGroup
                   familyId={familyId}
-                  label="Parents"
+                  label="父母"
                   items={parents.map((r) => r.relatedMember)}
                 />
               ) : null}
               {spouses.length > 0 ? (
                 <RelationshipGroup
                   familyId={familyId}
-                  label={spouses.length === 1 ? "Spouse" : "Spouses"}
+                  label={spouses.length === 1 ? "配偶" : "配偶"}
                   items={spouses.map((r) => r.relatedMember)}
                 />
               ) : null}
               {children.length > 0 ? (
                 <RelationshipGroup
                   familyId={familyId}
-                  label={children.length === 1 ? "Child" : "Children"}
+                  label={children.length === 1 ? "子女" : "子女"}
                   items={children.map((r) => r.relatedMember)}
                 />
               ) : null}
               {siblings.length > 0 ? (
                 <RelationshipGroup
                   familyId={familyId}
-                  label={siblings.length === 1 ? "Sibling" : "Siblings"}
+                  label={siblings.length === 1 ? "兄弟姐妹" : "兄弟姐妹"}
                   items={siblings.map((r) => r.relatedMember)}
                 />
               ) : null}
@@ -363,10 +363,10 @@ export default async function MemberDetailPage({
                 <line x1="16.68" y1="6.32" x2="17.32" y2="17.68" />
               </svg>
               <p className="text-sm font-medium text-slate-400">
-                No relationships
-              </p>
-              <p className="text-xs text-slate-400">
-                This member isn&apos;t connected to anyone in the family yet.
+                  暂无关系
+                </p>
+                <p className="text-xs text-slate-400">
+                  该成员尚未与其他成员建立关系。
               </p>
             </div>
           )}

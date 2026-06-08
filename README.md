@@ -23,8 +23,9 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-009：只读 Family Dashboard 页面
 - Task-010：只读 Family Graph 前端页面（React Flow 渲染）
 - Task-011：只读 Member Detail 前端页面
+- Task-012：Member 创建 API
 
-当前还没有实现登录、成员 CRUD、图谱编辑等页面逻辑。
+当前还没有实现登录、成员 CRUD 前端表单、图谱编辑等页面逻辑。
 
 ## 技术栈
 
@@ -151,6 +152,30 @@ http://localhost:3000/families/{familyId}/members/{memberId}
 
 该页面展示成员基本信息（姓名、头像/initials、生卒年份、bioShort、maintenance role、source）、传记（Markdown 文本或空状态）、时间线事件列表和关系摘要（父母/配偶/子女/兄弟姐妹分组，可点击跳转相关成员详情页）。
 
+创建 member：
+
+```bash
+POST /api/v1/families/{familyId}/members
+Content-Type: application/json
+```
+
+请求体示例：
+
+```json
+{
+  "fullName": "Tang Example",
+  "gender": "MALE",
+  "birthDate": "1999-07-22",
+  "deathDate": null,
+  "bioShort": "Short introduction.",
+  "maintenanceRole": "PROXY",
+  "source": "ADMIN_CREATED",
+  "claimedByUserId": null
+}
+```
+
+该接口支持字段验证：fullName 必填且 ≤120 字符，gender/source/maintenanceRole 必须为合法枚举值，birthDate 不能晚于 deathDate，claimedByUserId 必须引用已存在的用户。默认 maintenanceRole=PROXY，默认 source=ADMIN_CREATED。
+
 成功响应格式：
 
 ```json
@@ -186,15 +211,15 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 ## 当前未实现
 
 - 登录
-- API 业务逻辑（健康检查、最小 Family 读取、只读 Member detail、只读 graph payload 除外）
-- 成员 CRUD 页面和接口
+- API 业务逻辑（健康检查、最小 Family 读取、只读 Member detail、只读 graph payload、Member 创建 API 除外）
+- 成员编辑/删除接口
 - 关系图编辑和创建
-- 关系图编辑和创建
-- Timeline event 前端页面
+- Timeline event 创建/编辑
+- Member 创建前端表单页面
 - AI
 - 上传
 - 支付
 
 ## 下一步建议
 
-Task-012：实现 member 创建 API（POST /api/v1/families/{familyId}/members）或其它创建接口。
+Task-013：实现 Member 创建前端表单页面（`/families/[familyId]/members/new`），调用 POST API 创建成员。

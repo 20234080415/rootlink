@@ -28,13 +28,13 @@ export default async function FamilyDashboardPage({
       <section className="mx-auto flex w-full max-w-4xl flex-col gap-6">
         <div className="flex flex-col gap-2">
           <p className="text-sm font-medium uppercase tracking-wide text-slate-500">
-            Family Dashboard
+            家族仪表盘
           </p>
           <h1 className="text-3xl font-semibold text-slate-950">
             {family.name}
           </h1>
           <p className="text-sm text-slate-500">
-            Slug: <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs">{family.slug}</code>
+            标识：<code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs">{family.slug}</code>
           </p>
           {family.description ? (
             <p className="text-sm leading-relaxed text-slate-600">
@@ -44,10 +44,10 @@ export default async function FamilyDashboardPage({
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Members" value={summary.memberCount} />
-          <StatCard label="Relationships" value={summary.relationshipCount} />
-          <StatCard label="Biographies" value={summary.biographyCount} />
-          <StatCard label="Timeline Events" value={summary.timelineEventCount} />
+          <StatCard label="成员" value={summary.memberCount} />
+          <StatCard label="关系" value={summary.relationshipCount} />
+          <StatCard label="传记" value={summary.biographyCount} />
+          <StatCard label="时间线事件" value={summary.timelineEventCount} />
         </div>
 
         <nav className="flex flex-wrap gap-3">
@@ -68,7 +68,7 @@ export default async function FamilyDashboardPage({
               <line x1="7.32" y1="17.68" x2="12.68" y2="6.32" />
               <line x1="16.68" y1="6.32" x2="17.32" y2="17.68" />
             </svg>
-            View Graph
+            查看图谱
           </Link>
 
           <button
@@ -87,18 +87,18 @@ export default async function FamilyDashboardPage({
               <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
               <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
-            Members{hasMembers ? ` (${summary.memberCount})` : ""}
+            成员{hasMembers ? ` (${summary.memberCount})` : ""}
           </button>
         </nav>
 
         <div className="rounded-lg border border-slate-200 bg-white p-4">
           <p className="text-sm text-slate-500">
-            This family was created on{" "}
+            该家族创建于{" "}
             <time className="font-medium text-slate-700">
               {new Date(family.createdAt).toLocaleDateString()}
             </time>
             {" · "}
-            Last updated{" "}
+            最后更新{" "}
             <time className="font-medium text-slate-700">
               {new Date(family.updatedAt).toLocaleDateString()}
             </time>
@@ -107,7 +107,7 @@ export default async function FamilyDashboardPage({
 
         <p className="text-center text-sm text-slate-400">
           <Link href="/" className="underline transition hover:text-slate-600">
-            Back to RootLink
+            返回 RootLink
           </Link>
         </p>
       </section>

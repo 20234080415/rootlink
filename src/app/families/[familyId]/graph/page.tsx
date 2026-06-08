@@ -35,16 +35,16 @@ export default async function FamilyGraphPage({
               >
                 {family.name}
               </Link>
-              {" / Graph"}
+              {" / 图谱"}
             </p>
             <h1 className="text-2xl font-semibold text-slate-950">
-              Family Graph
+            家族图谱
             </h1>
           </div>
 
           <div className="flex items-center gap-3">
             <span className="text-xs text-slate-400">
-              {nodes.length} members · {edges.length} relationships
+              {nodes.length} 成员 · {edges.length} 关系
             </span>
             <Link
               href={`/families/${familyId}`}
@@ -59,7 +59,7 @@ export default async function FamilyGraphPage({
               >
                 <path d="M19 12H5M12 19l-7-7 7-7" />
               </svg>
-              Back to Dashboard
+              返回仪表盘
             </Link>
           </div>
         </div>

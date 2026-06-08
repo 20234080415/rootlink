@@ -7,18 +7,17 @@ export default function MemberNotFound() {
         <p className="text-6xl font-light text-slate-300">404</p>
 
         <h2 className="text-lg font-semibold text-slate-950">
-          Member not found
+          成员未找到
         </h2>
         <p className="max-w-md text-center text-sm text-slate-500">
-          This member doesn&apos;t exist in this family or may have been
-          removed.
+          该成员在此家族中不存在，可能已被移除。
         </p>
 
         <Link
           href="/"
           className="mt-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
         >
-          Back to RootLink
+          返回 RootLink
         </Link>
       </section>
     </main>

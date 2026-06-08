@@ -32,11 +32,10 @@ export default function FamilyDashboardError({
         </div>
 
         <h2 className="text-lg font-semibold text-slate-950">
-          Something went wrong
+          加载失败
         </h2>
         <p className="max-w-md text-center text-sm text-slate-500">
-          We couldn&apos;t load the family dashboard. The family may not exist
-          or the server might be unavailable.
+          无法加载家族仪表盘，家族可能不存在或服务不可用。
         </p>
 
         <div className="flex gap-3 pt-2">
@@ -44,13 +43,13 @@ export default function FamilyDashboardError({
             onClick={reset}
             className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
           >
-            Try again
+            重试
           </button>
           <Link
             href="/"
             className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
-            Back to RootLink
+            返回 RootLink
           </Link>
         </div>
       </section>
