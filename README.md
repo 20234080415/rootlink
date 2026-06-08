@@ -27,6 +27,7 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-013：Member 创建前端表单页面
 - Task-014：Relationship 创建 API
 - Task-015：Relationship 创建前端界面
+- Task-016：Timeline event 创建 API
 
 当前还没有实现登录、成员编辑前端表单等页面逻辑。
 
@@ -210,6 +211,31 @@ Content-Type: application/json
 
 该接口对 SPOUSE_OF 和 SIBLING_OF 自动规范化（按 member ID 排序），PARENT_OF 保持 subject→object 方向。已存在的关系返回 409 CONFLICT。支持 startDate/endDate 可选日期范围验证。
 
+创建 timeline event：
+
+```bash
+POST /api/v1/families/{familyId}/members/{memberId}/timeline-events
+Content-Type: application/json
+```
+
+请求体示例：
+
+```json
+{
+  "title": "进入大学",
+  "description": "考入某某大学。",
+  "eventDate": "2017-09-01",
+  "sortDate": "2017-09-01",
+  "dateLabel": "2017年9月",
+  "isApproximate": false,
+  "source": "SELF_REPORTED",
+  "maintenanceRole": "SELF",
+  "visibility": "FAMILY"
+}
+```
+
+该接口要求 title 必填（≤160 字符），sortDate 必填。eventDate/dateLabel 可选，isApproximate 默认 false，source 默认 ADMIN_CREATED，maintenanceRole 默认 PROXY，visibility 默认 FAMILY。
+
 成功响应格式：
 
 ```json
@@ -245,13 +271,13 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 ## 当前未实现
 
 - 登录
-- API 业务逻辑（健康检查、最小 Family 读取、只读 Member detail、只读 graph payload、Member 创建 API、Relationship 创建 API 除外）
+- API 业务逻辑（健康检查、Family 读取、Member 读取、Graph 读取、Member 创建、Relationship 创建、Timeline event 创建除外）
 - 成员编辑/删除接口和前端
-- Timeline event 创建/编辑
+- Timeline event 编辑/删除和前端
 - AI
 - 上传
 - 支付
 
 ## 下一步建议
 
-Task-016：实现 Timeline event 创建 API（POST /api/v1/families/{familyId}/members/{memberId}/timeline-events），支持事件标题、日期（精确/近似）、描述等字段。
+Task-017：实现 Timeline event 创建前端界面（在成员详情页的时间线区域添加"创建事件"按钮和表单）。
