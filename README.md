@@ -25,6 +25,7 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-011：只读 Member Detail 前端页面
 - Task-012：Member 创建 API
 - Task-013：Member 创建前端表单页面
+- Task-014：Relationship 创建 API
 
 当前还没有实现登录、成员编辑前端表单、图谱编辑等页面逻辑。
 
@@ -185,6 +186,29 @@ http://localhost:3000/families/{familyId}/members/new
 
 该页面提供完整的简体中文表单，包含姓名、性别、出生日期、逝世日期、简介、维护方式和来源字段。提交前进行客户端校验（姓名必填、日期逻辑），成功后自动跳转成员详情页，失败时显示中文错误提示。
 
+创建 relationship：
+
+```bash
+POST /api/v1/families/{familyId}/relationships
+Content-Type: application/json
+```
+
+请求体示例：
+
+```json
+{
+  "subjectMemberId": "parent-uuid",
+  "objectMemberId": "child-uuid",
+  "relationshipType": "PARENT_OF",
+  "startDate": null,
+  "endDate": null,
+  "isPrimary": true,
+  "source": "ADMIN_CREATED"
+}
+```
+
+该接口对 SPOUSE_OF 和 SIBLING_OF 自动规范化（按 member ID 排序），PARENT_OF 保持 subject→object 方向。已存在的关系返回 409 CONFLICT。支持 startDate/endDate 可选日期范围验证。
+
 成功响应格式：
 
 ```json
@@ -220,9 +244,9 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 ## 当前未实现
 
 - 登录
-- API 业务逻辑（健康检查、最小 Family 读取、只读 Member detail、只读 graph payload、Member 创建 API 除外）
+- API 业务逻辑（健康检查、最小 Family 读取、只读 Member detail、只读 graph payload、Member 创建 API、Relationship 创建 API 除外）
 - 成员编辑/删除接口
-- 关系图编辑和创建
+- 关系图编辑前端
 - Timeline event 创建/编辑
 - AI
 - 上传
@@ -230,4 +254,4 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 
 ## 下一步建议
 
-Task-014：实现 Relationship 创建 API（POST /api/v1/families/{familyId}/relationships），支持 PARENT_OF / SPOUSE_OF / SIBLING_OF 关系创建和对称关系规范化。
+Task-015：实现 Relationship 创建前端界面（从图谱页面选择两个成员创建关系，自动规范化对称关系）。
