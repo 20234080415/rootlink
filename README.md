@@ -24,8 +24,9 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-010：只读 Family Graph 前端页面（React Flow 渲染）
 - Task-011：只读 Member Detail 前端页面
 - Task-012：Member 创建 API
+- Task-013：Member 创建前端表单页面
 
-当前还没有实现登录、成员 CRUD 前端表单、图谱编辑等页面逻辑。
+当前还没有实现登录、成员编辑前端表单、图谱编辑等页面逻辑。
 
 ## 技术栈
 
@@ -176,6 +177,14 @@ Content-Type: application/json
 
 该接口支持字段验证：fullName 必填且 ≤120 字符，gender/source/maintenanceRole 必须为合法枚举值，birthDate 不能晚于 deathDate，claimedByUserId 必须引用已存在的用户。默认 maintenanceRole=PROXY，默认 source=ADMIN_CREATED。
 
+打开 member 创建表单页面：
+
+```bash
+http://localhost:3000/families/{familyId}/members/new
+```
+
+该页面提供完整的简体中文表单，包含姓名、性别、出生日期、逝世日期、简介、维护方式和来源字段。提交前进行客户端校验（姓名必填、日期逻辑），成功后自动跳转成员详情页，失败时显示中文错误提示。
+
 成功响应格式：
 
 ```json
@@ -215,11 +224,10 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 - 成员编辑/删除接口
 - 关系图编辑和创建
 - Timeline event 创建/编辑
-- Member 创建前端表单页面
 - AI
 - 上传
 - 支付
 
 ## 下一步建议
 
-Task-013：实现 Member 创建前端表单页面（`/families/[familyId]/members/new`），调用 POST API 创建成员。
+Task-014：实现 Relationship 创建 API（POST /api/v1/families/{familyId}/relationships），支持 PARENT_OF / SPOUSE_OF / SIBLING_OF 关系创建和对称关系规范化。
