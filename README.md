@@ -28,6 +28,7 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-014：Relationship 创建 API
 - Task-015：Relationship 创建前端界面
 - Task-016：Timeline event 创建 API
+- Task-017：Timeline event 创建前端界面
 
 当前还没有实现登录、成员编辑前端表单等页面逻辑。
 
@@ -154,7 +155,7 @@ http://localhost:3000/families/{familyId}/graph
 http://localhost:3000/families/{familyId}/members/{memberId}
 ```
 
-该页面展示成员基本信息（姓名、头像/initials、生卒年份、bioShort、maintenance role、source）、传记（Markdown 文本或空状态）、时间线事件列表和关系摘要（父母/配偶/子女/兄弟姐妹分组，可点击跳转相关成员详情页）。
+该页面展示成员基本信息（姓名、头像/initials、生卒年份、bioShort、maintenance role、source）、传记（Markdown 文本或空状态）、时间线事件列表（点击"创建事件"可添加新事件）和关系摘要（父母/配偶/子女/兄弟姐妹分组，可点击跳转相关成员详情页）。
 
 创建 member：
 
@@ -273,11 +274,11 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 - 登录
 - API 业务逻辑（健康检查、Family 读取、Member 读取、Graph 读取、Member 创建、Relationship 创建、Timeline event 创建除外）
 - 成员编辑/删除接口和前端
-- Timeline event 编辑/删除和前端
+- Timeline event 编辑/删除
 - AI
 - 上传
 - 支付
 
 ## 下一步建议
 
-Task-017：实现 Timeline event 创建前端界面（在成员详情页的时间线区域添加"创建事件"按钮和表单）。
+Task-018：实现 Biography 创建/编辑 API（PUT /api/v1/families/{familyId}/members/{memberId}/biography），支持 Markdown 内容、来源、维护角色、可见范围。
