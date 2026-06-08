@@ -29,6 +29,7 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-015：Relationship 创建前端界面
 - Task-016：Timeline event 创建 API
 - Task-017：Timeline event 创建前端界面
+- Task-018：Biography 创建/编辑 API
 
 当前还没有实现登录、成员编辑前端表单等页面逻辑。
 
@@ -237,6 +238,26 @@ Content-Type: application/json
 
 该接口要求 title 必填（≤160 字符），sortDate 必填。eventDate/dateLabel 可选，isApproximate 默认 false，source 默认 ADMIN_CREATED，maintenanceRole 默认 PROXY，visibility 默认 FAMILY。
 
+创建/更新 biography：
+
+```bash
+PUT /api/v1/families/{familyId}/members/{memberId}/biography
+Content-Type: application/json
+```
+
+请求体示例：
+
+```json
+{
+  "contentMd": "这里是成员传记 Markdown 内容。",
+  "source": "SELF_REPORTED",
+  "maintenanceRole": "SELF",
+  "visibility": "FAMILY"
+}
+```
+
+该接口使用 Upsert 模式：如果成员已有传记则更新，没有则创建。contentMd 字段必须存在（允许空字符串），source 默认 ADMIN_CREATED，maintenanceRole 默认 PROXY，visibility 默认 FAMILY。
+
 成功响应格式：
 
 ```json
@@ -272,8 +293,9 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 ## 当前未实现
 
 - 登录
-- API 业务逻辑（健康检查、Family 读取、Member 读取、Graph 读取、Member 创建、Relationship 创建、Timeline event 创建除外）
+- API 业务逻辑（已完成的 CRUD 除外）
 - 成员编辑/删除接口和前端
+- Biography 前端编辑
 - Timeline event 编辑/删除
 - AI
 - 上传
@@ -281,4 +303,4 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 
 ## 下一步建议
 
-Task-018：实现 Biography 创建/编辑 API（PUT /api/v1/families/{familyId}/members/{memberId}/biography），支持 Markdown 内容、来源、维护角色、可见范围。
+Task-019：实现 Biography 前端编辑（在成员详情页传记区域添加"编辑"按钮和 Markdown 编辑器，调用 PUT API）。
