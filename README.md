@@ -31,6 +31,7 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-017：Timeline event 创建前端界面
 - Task-018：Biography 创建/编辑 API
 - Task-019：Biography 前端编辑
+- Task-020：Member 编辑 API
 
 当前还没有实现登录、成员编辑前端表单等页面逻辑。
 
@@ -183,6 +184,28 @@ Content-Type: application/json
 
 该接口支持字段验证：fullName 必填且 ≤120 字符，gender/source/maintenanceRole 必须为合法枚举值，birthDate 不能晚于 deathDate，claimedByUserId 必须引用已存在的用户。默认 maintenanceRole=PROXY，默认 source=ADMIN_CREATED。
 
+编辑 member：
+
+```bash
+PATCH /api/v1/families/{familyId}/members/{memberId}
+Content-Type: application/json
+```
+
+请求体示例（所有字段可选，只更新传入的字段）：
+
+```json
+{
+  "fullName": "Tang Example Updated",
+  "gender": "MALE",
+  "birthDate": "1999-07-22",
+  "bioShort": "Updated introduction.",
+  "maintenanceRole": "SELF",
+  "source": "SELF_REPORTED"
+}
+```
+
+该接口只更新请求体中明确传入的字段，未传入的字段保持不变。传入 null 表示清空该字段（例如 `{"deathDate": null}`）。至少需要传入一个字段。
+
 打开 member 创建表单页面：
 
 ```bash
@@ -295,7 +318,7 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 
 - 登录
 - API 业务逻辑（已完成的 CRUD 除外）
-- 成员编辑/删除接口和前端
+- 成员编辑前端表单
 - Timeline event 编辑/删除
 - AI
 - 上传
@@ -303,4 +326,4 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 
 ## 下一步建议
 
-Task-020：实现成员编辑 API（PATCH /api/v1/families/{familyId}/members/{memberId}），支持更新成员核心字段（姓名、性别、日期、简介、维护角色、来源等）。
+Task-021：实现成员编辑前端表单（在成员详情页添加"编辑成员"按钮，复用创建成员的字段结构和校验逻辑，调用 PATCH API）。
