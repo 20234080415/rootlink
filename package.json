@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "db:health": "tsx scripts/check-db-health.ts",
     "db:seed": "prisma db seed",
     "prisma": "prisma"
   },

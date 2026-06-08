@@ -13,6 +13,8 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-002：Prisma V1 数据模型
 - Task-002：PostgreSQL 初始 migration
 - Task-003：Demo seed 数据
+- Task-004：Prisma Client 服务端封装
+- Task-004：数据库健康检查接口与本地检查脚本
 
 当前还没有实现业务流程页面或接口逻辑。
 
@@ -56,6 +58,7 @@ npm run dev
 - `npm run format`：用 Prettier 格式化代码
 - `npm run format:check`：检查代码格式
 - `npm run prisma`：运行 Prisma CLI
+- `npm run db:health`：检查数据库连通性
 - `npm run db:seed`：运行 Prisma seed
 
 ## 数据库初始化
@@ -80,6 +83,18 @@ npm run prisma -- migrate dev
 npm run db:seed
 ```
 
+检查数据库连通性：
+
+```bash
+npm run db:health
+```
+
+也可以访问健康检查接口：
+
+```bash
+GET /api/health/db
+```
+
 Task-003 的 seed 会创建：
 
 - 1 个 demo family：`Tang Demo Family`
@@ -94,7 +109,7 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 ## 当前未实现
 
 - 登录
-- API 业务逻辑
+- API 业务逻辑（健康检查除外）
 - 成员 CRUD
 - 关系图业务
 - AI
@@ -103,4 +118,4 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 
 ## 下一步建议
 
-Task-004：实现 Prisma Client 的服务端封装与基础数据库健康检查，不进入登录、CRUD 或图谱业务。
+Task-005：实现基础 API 响应格式与错误格式工具，对齐 `docs/api.md`，但仍不进入登录、CRUD 或图谱业务。
