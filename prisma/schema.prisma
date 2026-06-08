@@ -1,0 +1,204 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum FamilyRole {
+  OWNER
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  UNKNOWN
+}
+
+enum RelationshipType {
+  PARENT_OF
+  SPOUSE_OF
+  SIBLING_OF
+}
+
+enum DataSource {
+  SELF_REPORTED
+  PROXY_RECORDED
+  INTERVIEW
+  FAMILY_MEMORY
+  IMPORTED
+  ADMIN_CREATED
+}
+
+enum MaintenanceRole {
+  SELF
+  PROXY
+  GUARDIAN
+  FAMILY_ADMIN
+  ARCHIVIST
+}
+
+enum Visibility {
+  FAMILY
+  ADMINS_ONLY
+  PRIVATE_TO_MAINTAINERS
+}
+
+model User {
+  id           String     @id @default(uuid()) @db.Uuid
+  email        String     @unique(map: "app_user_email_key") @db.VarChar(320)
+  passwordHash String     @map("password_hash") @db.Text
+  displayName  String     @map("display_name") @db.VarChar(120)
+  familyId     String?    @map("family_id") @db.Uuid
+  familyRole   FamilyRole @default(VIEWER) @map("family_role")
+  isActive     Boolean    @default(true) @map("is_active")
+  lastLoginAt  DateTime?  @map("last_login_at") @db.Timestamptz(6)
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  family                Family?         @relation("FamilyUsers", fields: [familyId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  createdFamilies       Family[]        @relation("FamilyCreatedBy")
+  claimedMember         Member?         @relation("MemberClaimedBy")
+  membersCreated        Member[]        @relation("MemberCreatedBy")
+  membersUpdated        Member[]        @relation("MemberUpdatedBy")
+  biographiesCreated    Biography[]     @relation("BiographyCreatedBy")
+  biographiesUpdated    Biography[]     @relation("BiographyUpdatedBy")
+  timelineEventsCreated TimelineEvent[] @relation("TimelineEventCreatedBy")
+  timelineEventsUpdated TimelineEvent[] @relation("TimelineEventUpdatedBy")
+  relationshipsCreated  Relationship[]  @relation("RelationshipCreatedBy")
+
+  @@index([familyId], map: "app_user_family_id_idx")
+  @@map("app_user")
+}
+
+model Family {
+  id          String   @id @default(uuid()) @db.Uuid
+  slug        String   @unique(map: "family_slug_key") @db.VarChar(80)
+  name        String   @db.VarChar(120)
+  description String?  @db.Text
+  createdById String?  @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  createdBy      User?           @relation("FamilyCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  users          User[]          @relation("FamilyUsers")
+  members        Member[]
+  biographies    Biography[]
+  timelineEvents TimelineEvent[]
+  relationships  Relationship[]
+
+  @@index([createdById], map: "family_created_by_id_idx")
+  @@map("family")
+}
+
+model Member {
+  id              String          @id @default(uuid()) @db.Uuid
+  familyId        String          @map("family_id") @db.Uuid
+  claimedByUserId String?         @unique(map: "member_claimed_by_user_id_key") @map("claimed_by_user_id") @db.Uuid
+  fullName        String          @map("full_name") @db.VarChar(120)
+  gender          Gender?
+  birthDate       DateTime?       @map("birth_date") @db.Date
+  deathDate       DateTime?       @map("death_date") @db.Date
+  avatarUrl       String?         @map("avatar_url") @db.Text
+  bioShort        String?         @map("bio_short") @db.Text
+  maintenanceRole MaintenanceRole @default(PROXY) @map("maintenance_role")
+  source          DataSource      @default(ADMIN_CREATED)
+  createdById     String?         @map("created_by_id") @db.Uuid
+  updatedById     String?         @map("updated_by_id") @db.Uuid
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  family               Family          @relation(fields: [familyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  claimedByUser        User?           @relation("MemberClaimedBy", fields: [claimedByUserId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  createdBy            User?           @relation("MemberCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  updatedBy            User?           @relation("MemberUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  biography            Biography?
+  timelineEvents       TimelineEvent[]
+  subjectRelationships Relationship[]  @relation("RelationshipSubject")
+  objectRelationships  Relationship[]  @relation("RelationshipObject")
+
+  @@index([familyId], map: "member_family_id_idx")
+  @@index([familyId, fullName], map: "member_family_full_name_idx")
+  @@index([familyId, birthDate], map: "member_family_birth_date_idx")
+  @@map("member")
+}
+
+model Biography {
+  id              String          @id @default(uuid()) @db.Uuid
+  familyId        String          @map("family_id") @db.Uuid
+  memberId        String          @unique(map: "biography_member_id_key") @map("member_id") @db.Uuid
+  contentMd       String          @default("") @map("content_md") @db.Text
+  source          DataSource      @default(ADMIN_CREATED)
+  maintenanceRole MaintenanceRole @default(PROXY) @map("maintenance_role")
+  visibility      Visibility      @default(FAMILY)
+  createdById     String?         @map("created_by_id") @db.Uuid
+  updatedById     String?         @map("updated_by_id") @db.Uuid
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  family    Family @relation(fields: [familyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  member    Member @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdBy User?  @relation("BiographyCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  updatedBy User?  @relation("BiographyUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([familyId], map: "biography_family_id_idx")
+  @@map("biography")
+}
+
+model TimelineEvent {
+  id              String          @id @default(uuid()) @db.Uuid
+  familyId        String          @map("family_id") @db.Uuid
+  memberId        String          @map("member_id") @db.Uuid
+  title           String          @db.VarChar(160)
+  description     String?         @db.Text
+  eventDate       DateTime?       @map("event_date") @db.Date
+  sortDate        DateTime        @map("sort_date") @db.Date
+  dateLabel       String?         @map("date_label") @db.VarChar(80)
+  isApproximate   Boolean         @default(false) @map("is_approximate")
+  source          DataSource      @default(ADMIN_CREATED)
+  maintenanceRole MaintenanceRole @default(PROXY) @map("maintenance_role")
+  visibility      Visibility      @default(FAMILY)
+  createdById     String?         @map("created_by_id") @db.Uuid
+  updatedById     String?         @map("updated_by_id") @db.Uuid
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  family    Family @relation(fields: [familyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  member    Member @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdBy User?  @relation("TimelineEventCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  updatedBy User?  @relation("TimelineEventUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([familyId, sortDate], map: "timeline_event_family_sort_date_idx")
+  @@index([familyId, memberId, sortDate], map: "timeline_event_family_member_sort_idx")
+  @@map("timeline_event")
+}
+
+model Relationship {
+  id               String           @id @default(uuid()) @db.Uuid
+  familyId         String           @map("family_id") @db.Uuid
+  subjectMemberId  String           @map("subject_member_id") @db.Uuid
+  objectMemberId   String           @map("object_member_id") @db.Uuid
+  relationshipType RelationshipType @map("relationship_type")
+  startDate        DateTime?        @map("start_date") @db.Date
+  endDate          DateTime?        @map("end_date") @db.Date
+  isPrimary        Boolean          @default(true) @map("is_primary")
+  source           DataSource       @default(ADMIN_CREATED)
+  createdById      String?          @map("created_by_id") @db.Uuid
+  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  family        Family @relation(fields: [familyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  subjectMember Member @relation("RelationshipSubject", fields: [subjectMemberId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  objectMember  Member @relation("RelationshipObject", fields: [objectMemberId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdBy     User?  @relation("RelationshipCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@unique([familyId, relationshipType, subjectMemberId, objectMemberId], map: "relationship_family_type_subject_object_key")
+  @@index([familyId, subjectMemberId], map: "relationship_family_subject_idx")
+  @@index([familyId, objectMemberId], map: "relationship_family_object_idx")
+  @@index([familyId, relationshipType], map: "relationship_family_type_idx")
+  @@map("relationship")
+}

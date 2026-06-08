@@ -16,7 +16,16 @@ This repository currently contains the project foundation only:
 - React Flow package installation
 - Base source directory structure
 
-No business functionality is implemented in Task-001.
+Task-002 adds the first Prisma data model and initial migration for the six V1 domain entities:
+
+- `User`
+- `Family`
+- `Member`
+- `Relationship`
+- `Biography`
+- `TimelineEvent`
+
+No business workflows are implemented in Task-001 or Task-002.
 
 ## Local setup
 
@@ -50,10 +59,26 @@ Open `http://localhost:3000`.
 - `npm run format:check` checks formatting.
 - `npm run prisma` runs the Prisma CLI.
 
-## Deferred from Task-001
+## Database setup
+
+Task-002 includes `prisma/schema.prisma`, `prisma.config.ts`, and an initial PostgreSQL migration.
+
+Validate the Prisma schema:
+
+```bash
+npm run prisma -- validate
+```
+
+Apply the initial migration after `DATABASE_URL` points at a local PostgreSQL database:
+
+```bash
+npm run prisma -- migrate dev
+```
+
+## Deferred from current tasks
 
 - Authentication
-- Prisma database schema
+- Seed data
 - Relationship graph business logic
 - Member CRUD
 - AI features
@@ -62,4 +87,4 @@ Open `http://localhost:3000`.
 
 ## Suggested next task
 
-Task-002 should add the initial Prisma schema and migration from `docs/database.md`, still without implementing UI workflows.
+Task-003 should add seed data from `docs/database.md`, still without implementing UI workflows.
