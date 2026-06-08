@@ -1,90 +1,106 @@
 # RootLink
 
-RootLink is a V1 family digital memory platform. The product direction is documented in `docs/`.
+RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计、接口契约和路线图都在 `docs/` 目录中。
 
-## Task-001 status
+## 当前状态
 
-This repository currently contains the project foundation only:
+本仓库已经完成：
+
+- Task-001：Next.js + TypeScript 项目初始化
+- Task-001：Tailwind CSS、ESLint、Prettier 配置
+- Task-001：Prisma、PostgreSQL、React Flow 基础依赖安装
+- Task-001：基础源码目录结构
+- Task-002：Prisma V1 数据模型
+- Task-002：PostgreSQL 初始 migration
+- Task-003：Demo seed 数据
+
+当前还没有实现业务流程页面或接口逻辑。
+
+## 技术栈
 
 - Next.js App Router
 - TypeScript
 - Tailwind CSS
-- ESLint
-- Prettier
-- Prisma package installation
-- PostgreSQL environment placeholder
-- React Flow package installation
-- Base source directory structure
+- Prisma
+- PostgreSQL
+- React Flow
 
-Task-002 adds the first Prisma data model and initial migration for the six V1 domain entities:
+## 本地启动
 
-- `User`
-- `Family`
-- `Member`
-- `Relationship`
-- `Biography`
-- `TimelineEvent`
-
-No business workflows are implemented in Task-001 or Task-002.
-
-## Local setup
-
-Install dependencies:
+安装依赖：
 
 ```bash
 npm install
 ```
 
-Create local environment variables:
+创建本地环境变量：
 
 ```bash
 cp .env.example .env
 ```
 
-Start the development server:
+启动开发服务：
 
 ```bash
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+打开 `http://localhost:3000`。
 
-## Available scripts
+## 常用命令
 
-- `npm run dev` starts the local Next.js development server.
-- `npm run build` creates a production build.
-- `npm run start` starts the production server after a build.
-- `npm run lint` runs ESLint.
-- `npm run format` formats files with Prettier.
-- `npm run format:check` checks formatting.
-- `npm run prisma` runs the Prisma CLI.
+- `npm run dev`：启动 Next.js 开发服务
+- `npm run build`：执行生产构建
+- `npm run start`：启动生产服务
+- `npm run lint`：运行 ESLint
+- `npm run format`：用 Prettier 格式化代码
+- `npm run format:check`：检查代码格式
+- `npm run prisma`：运行 Prisma CLI
+- `npm run db:seed`：运行 Prisma seed
 
-## Database setup
+## 数据库初始化
 
-Task-002 includes `prisma/schema.prisma`, `prisma.config.ts`, and an initial PostgreSQL migration.
+先确保 `.env` 中的 `DATABASE_URL` 指向本地 PostgreSQL 数据库。
 
-Validate the Prisma schema:
+校验 Prisma schema：
 
 ```bash
 npm run prisma -- validate
 ```
 
-Apply the initial migration after `DATABASE_URL` points at a local PostgreSQL database:
+应用初始 migration：
 
 ```bash
 npm run prisma -- migrate dev
 ```
 
-## Deferred from current tasks
+写入 demo 数据：
 
-- Authentication
-- Seed data
-- Relationship graph business logic
-- Member CRUD
-- AI features
-- Uploads
-- Payments
+```bash
+npm run db:seed
+```
 
-## Suggested next task
+Task-003 的 seed 会创建：
 
-Task-003 should add seed data from `docs/database.md`, still without implementing UI workflows.
+- 1 个 demo family：`Tang Demo Family`
+- 4 个 users
+- 20 个 members
+- 31 条 relationships
+- 20 条 biographies
+- 50 条 timeline events
+
+seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 demo 数据，再重新写入。
+
+## 当前未实现
+
+- 登录
+- API 业务逻辑
+- 成员 CRUD
+- 关系图业务
+- AI
+- 上传
+- 支付
+
+## 下一步建议
+
+Task-004：实现 Prisma Client 的服务端封装与基础数据库健康检查，不进入登录、CRUD 或图谱业务。
