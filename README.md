@@ -26,8 +26,9 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-012：Member 创建 API
 - Task-013：Member 创建前端表单页面
 - Task-014：Relationship 创建 API
+- Task-015：Relationship 创建前端界面
 
-当前还没有实现登录、成员编辑前端表单、图谱编辑等页面逻辑。
+当前还没有实现登录、成员编辑前端表单等页面逻辑。
 
 ## 技术栈
 
@@ -144,7 +145,7 @@ http://localhost:3000/families/{familyId}
 http://localhost:3000/families/{familyId}/graph
 ```
 
-该页面使用 React Flow 渲染交互式家族关系图，支持缩放、拖拽和 member 节点点击（跳转成员详情页）。边缘使用不同颜色标注 PARENT_OF / SPOUSE_OF / SIBLING_OF 关系类型。节点按出生年代自动分层布局，无出生年份的成员排在末尾。
+该页面使用 React Flow 渲染交互式家族关系图，支持缩放、拖拽和 member 节点点击（跳转成员详情页）。页面提供"创建关系"按钮，点击后打开右侧抽屉表单，可创建 PARENT_OF / SPOUSE_OF / SIBLING_OF 关系。边缘使用不同颜色标注关系类型，节点按出生年代自动分层布局。
 
 打开 member detail 页面：
 
@@ -245,8 +246,7 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 
 - 登录
 - API 业务逻辑（健康检查、最小 Family 读取、只读 Member detail、只读 graph payload、Member 创建 API、Relationship 创建 API 除外）
-- 成员编辑/删除接口
-- 关系图编辑前端
+- 成员编辑/删除接口和前端
 - Timeline event 创建/编辑
 - AI
 - 上传
@@ -254,4 +254,4 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 
 ## 下一步建议
 
-Task-015：实现 Relationship 创建前端界面（从图谱页面选择两个成员创建关系，自动规范化对称关系）。
+Task-016：实现 Timeline event 创建 API（POST /api/v1/families/{familyId}/members/{memberId}/timeline-events），支持事件标题、日期（精确/近似）、描述等字段。
