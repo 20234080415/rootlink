@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import TimelineEventCreateDialog from "@/components/member/TimelineEventCreateDialog";
+import BiographyEditDialog from "@/components/member/BiographyEditDialog";
 import type { MemberDetail } from "@/server/members/read-member";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -59,6 +60,10 @@ export default function MemberDetailPageClient({
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [bioDialogOpen, setBioDialogOpen] = useState(false);
+  const [bioSubmitting, setBioSubmitting] = useState(false);
+  const [bioServerError, setBioServerError] = useState<string | null>(null);
+  const [bioDialogKey, setBioDialogKey] = useState(0);
 
   const refreshData = useCallback(async () => {
     try {
@@ -120,6 +125,50 @@ export default function MemberDetailPageClient({
         setServerError("网络错误，请检查连接后重试。");
       } finally {
         setSubmitting(false);
+      }
+    },
+    [familyId, memberId, refreshData]
+  );
+
+  const handleBioSubmit = useCallback(
+    async (input: {
+      contentMd: string;
+      source: string;
+      maintenanceRole: string;
+      visibility: string;
+    }) => {
+      setBioServerError(null);
+      setBioSubmitting(true);
+
+      try {
+        const response = await fetch(
+          `/api/v1/families/${familyId}/members/${memberId}/biography`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(input),
+          }
+        );
+
+        const json = await response.json();
+
+        if (!response.ok) {
+          const apiError = json?.error;
+          setBioServerError(apiError?.message ?? "保存传记失败，请稍后重试。");
+          return;
+        }
+
+        setBioDialogOpen(false);
+        setBioServerError(null);
+        setSuccessMessage("传记保存成功");
+
+        setTimeout(() => setSuccessMessage(null), 3000);
+
+        await refreshData();
+      } catch {
+        setBioServerError("网络错误，请检查连接后重试。");
+      } finally {
+        setBioSubmitting(false);
       }
     },
     [familyId, memberId, refreshData]
@@ -280,7 +329,30 @@ export default function MemberDetailPageClient({
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold text-slate-900">传记</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900">传记</h2>
+            <button
+              type="button"
+              onClick={() => {
+                setBioServerError(null);
+                setBioDialogKey((k) => k + 1);
+                setBioDialogOpen(true);
+              }}
+              className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-slate-800"
+            >
+              <svg
+                className="h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+              编辑传记
+            </button>
+          </div>
           {biography && biography.contentMd ? (
             <div className="rounded-lg border border-slate-200 bg-white p-4">
               <div className="flex flex-wrap items-center gap-2 pb-3">
@@ -319,7 +391,7 @@ export default function MemberDetailPageClient({
                 暂无传记
               </p>
               <p className="text-xs text-slate-400">
-                该成员尚未记录传记。
+                暂无传记，可以先记录一段人生经历
               </p>
             </div>
           )}
@@ -475,6 +547,22 @@ export default function MemberDetailPageClient({
         onSubmit={handleSubmit}
         submitting={submitting}
         serverError={serverError}
+      />
+
+      <BiographyEditDialog
+        key={bioDialogKey}
+        open={bioDialogOpen}
+        currentContentMd={biography?.contentMd ?? ""}
+        currentSource={biography?.source ?? "ADMIN_CREATED"}
+        currentMaintenanceRole={biography?.maintenanceRole ?? "PROXY"}
+        currentVisibility={biography?.visibility ?? "FAMILY"}
+        onClose={() => {
+          setBioServerError(null);
+          setBioDialogOpen(false);
+        }}
+        onSubmit={handleBioSubmit}
+        submitting={bioSubmitting}
+        serverError={bioServerError}
       />
     </>
   );

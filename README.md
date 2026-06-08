@@ -30,6 +30,7 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-016：Timeline event 创建 API
 - Task-017：Timeline event 创建前端界面
 - Task-018：Biography 创建/编辑 API
+- Task-019：Biography 前端编辑
 
 当前还没有实现登录、成员编辑前端表单等页面逻辑。
 
@@ -156,7 +157,7 @@ http://localhost:3000/families/{familyId}/graph
 http://localhost:3000/families/{familyId}/members/{memberId}
 ```
 
-该页面展示成员基本信息（姓名、头像/initials、生卒年份、bioShort、maintenance role、source）、传记（Markdown 文本或空状态）、时间线事件列表（点击"创建事件"可添加新事件）和关系摘要（父母/配偶/子女/兄弟姐妹分组，可点击跳转相关成员详情页）。
+该页面展示成员基本信息（姓名、头像/initials、生卒年份、bioShort、maintenance role、source）、传记（Markdown 文本，点击"编辑传记"可修改内容）、时间线事件列表（点击"创建事件"可添加新事件）和关系摘要（父母/配偶/子女/兄弟姐妹分组，可点击跳转相关成员详情页）。
 
 创建 member：
 
@@ -295,7 +296,6 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 - 登录
 - API 业务逻辑（已完成的 CRUD 除外）
 - 成员编辑/删除接口和前端
-- Biography 前端编辑
 - Timeline event 编辑/删除
 - AI
 - 上传
@@ -303,4 +303,4 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 
 ## 下一步建议
 
-Task-019：实现 Biography 前端编辑（在成员详情页传记区域添加"编辑"按钮和 Markdown 编辑器，调用 PUT API）。
+Task-020：实现成员编辑 API（PATCH /api/v1/families/{familyId}/members/{memberId}），支持更新成员核心字段（姓名、性别、日期、简介、维护角色、来源等）。
