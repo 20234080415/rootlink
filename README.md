@@ -32,8 +32,10 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-018：Biography 创建/编辑 API
 - Task-019：Biography 前端编辑
 - Task-020：Member 编辑 API
+- Task-021：成员编辑前端表单
+- Task-022：3D Family Graph 原型页面
 
-当前还没有实现登录、成员编辑前端表单等页面逻辑。
+当前还没有实现登录等页面逻辑。
 
 ## 技术栈
 
@@ -43,6 +45,7 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Prisma 6.19.3
 - PostgreSQL
 - React Flow
+- react-force-graph-3d
 
 ## 本地启动
 
@@ -150,7 +153,15 @@ http://localhost:3000/families/{familyId}
 http://localhost:3000/families/{familyId}/graph
 ```
 
-该页面使用 React Flow 渲染交互式家族关系图，支持缩放、拖拽和 member 节点点击（跳转成员详情页）。页面提供"创建关系"按钮，点击后打开右侧抽屉表单，可创建 PARENT_OF / SPOUSE_OF / SIBLING_OF 关系。边缘使用不同颜色标注关系类型，节点按出生年代自动分层布局。
+该页面使用 React Flow 渲染交互式家族关系图，支持缩放、拖拽和 member 节点点击（跳转成员详情页）。页面提供"创建关系"按钮，点击后打开右侧抽屉表单，可创建 PARENT_OF / SPOUSE_OF / SIBLING_OF 关系。边缘使用不同颜色标注关系类型，节点按出生年代自动分层布局。2D graph 主要用于编辑和管理。
+
+打开 3D family graph 页面：
+
+```bash
+http://localhost:3000/families/{familyId}/graph-3d
+```
+
+该页面使用 `react-force-graph-3d` 渲染沉浸式 3D 家族星图，复用 `GET /api/v1/families/{familyId}/graph` 数据，不修改 Prisma schema 和现有 API。节点按连接度动态改变大小，点击节点会自动聚焦并高亮相邻节点，双击节点或点击"查看详情"可跳转成员详情页。3D graph 主要用于沉浸浏览和关系探索；2D graph 继续作为编辑和管理模式。
 
 打开 member detail 页面：
 
@@ -158,7 +169,17 @@ http://localhost:3000/families/{familyId}/graph
 http://localhost:3000/families/{familyId}/members/{memberId}
 ```
 
-该页面展示成员基本信息（姓名、头像/initials、生卒年份、bioShort、maintenance role、source）、传记（Markdown 文本，点击"编辑传记"可修改内容）、时间线事件列表（点击"创建事件"可添加新事件）和关系摘要（父母/配偶/子女/兄弟姐妹分组，可点击跳转相关成员详情页）。
+该页面展示成员基本信息（姓名、头像/initials、生卒年份、bioShort、maintenance role、source）、传记（Markdown 文本，点击"编辑传记"可修改内容）、时间线事件列表（点击"创建事件"可添加新事件）和关系摘要。顶部提供"编辑成员"按钮，跳转编辑表单页面。
+
+打开成员编辑页面：
+
+```bash
+http://localhost:3000/families/{familyId}/members/{memberId}/edit
+```
+
+该页面预填充当前成员数据，支持修改姓名、性别、日期、简介、维护方式和来源。提交时仅发送变更字段（PATCH），成功后返回成员详情页。
+
+成功响应格式：
 
 创建 member：
 
@@ -318,12 +339,12 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 
 - 登录
 - API 业务逻辑（已完成的 CRUD 除外）
-- 成员编辑前端表单
 - Timeline event 编辑/删除
+- Relationship 编辑/删除
 - AI
 - 上传
 - 支付
 
 ## 下一步建议
 
-Task-021：实现成员编辑前端表单（在成员详情页添加"编辑成员"按钮，复用创建成员的字段结构和校验逻辑，调用 PATCH API）。
+Task-023：继续完善用户注册/登录基础 API（POST /api/v1/auth/register 和 POST /api/v1/auth/login），使用 email + password_hash 本地认证。
