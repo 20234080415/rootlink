@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import TimelineEventCreateDialog from "@/components/member/TimelineEventCreateDialog";
 import BiographyEditDialog from "@/components/member/BiographyEditDialog";
+import RelationshipInferencePanel from "@/components/member/RelationshipInferencePanel";
 import type { MemberDetail } from "@/server/members/read-member";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -64,6 +65,8 @@ export default function MemberDetailPageClient({
   const [bioSubmitting, setBioSubmitting] = useState(false);
   const [bioServerError, setBioServerError] = useState<string | null>(null);
   const [bioDialogKey, setBioDialogKey] = useState(0);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
 
   const refreshData = useCallback(async () => {
     try {
@@ -174,6 +177,45 @@ export default function MemberDetailPageClient({
     [familyId, memberId, refreshData]
   );
 
+  const handleAvatarUpload = useCallback(
+    async (file: File | null) => {
+      if (!file) return;
+
+      setAvatarError(null);
+      setAvatarUploading(true);
+
+      try {
+        const formData = new FormData();
+        formData.append("avatar", file);
+
+        const response = await fetch(
+          `/api/v1/families/${familyId}/members/${memberId}/avatar`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const json = await response.json();
+
+        if (!response.ok) {
+          const apiError = json?.error;
+          setAvatarError(apiError?.message ?? "头像上传失败，请稍后重试。");
+          return;
+        }
+
+        setSuccessMessage("头像上传成功");
+        setTimeout(() => setSuccessMessage(null), 3000);
+        await refreshData();
+      } catch {
+        setAvatarError("网络错误，请检查连接后重试。");
+      } finally {
+        setAvatarUploading(false);
+      }
+    },
+    [familyId, memberId, refreshData]
+  );
+
   const { member, biography, timelineEvents, relationships } = data;
 
   const birthYear = extractYear(member.birthDate);
@@ -273,8 +315,7 @@ export default function MemberDetailPageClient({
             </svg>
             查看图谱
           </Link>
-        </div>
-      </div>
+          </div>
 
       {successMessage ? (
         <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-700">
@@ -284,19 +325,44 @@ export default function MemberDetailPageClient({
 
       <div className="rounded-lg border border-slate-200 bg-white p-5">
         <div className="flex items-start gap-4">
-          {member.avatarUrl ? (
-            <Image
-              src={member.avatarUrl}
-              alt={member.fullName}
-              width={64}
-              height={64}
-              className="h-16 w-16 rounded-full border border-slate-200 object-cover"
-            />
-          ) : (
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-500">
-              {getInitials(member.fullName)}
+          <div className="flex flex-col items-center gap-2">
+            {member.avatarUrl ? (
+              <Image
+                src={member.avatarUrl}
+                alt={member.fullName}
+                width={72}
+                height={72}
+                unoptimized
+                className="h-[72px] w-[72px] rounded-full border border-slate-200 object-cover"
+              />
+            ) : (
+              <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-500">
+                {getInitials(member.fullName)}
+              </div>
+            )}
+            <label className="cursor-pointer rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50">
+              {avatarUploading ? "上传中..." : "上传头像"}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                disabled={avatarUploading}
+                onChange={(event) => {
+                  void handleAvatarUpload(event.target.files?.[0] ?? null);
+                  event.target.value = "";
+                }}
+                className="sr-only"
+              />
+            </label>
+            {avatarError ? (
+              <p className="max-w-[120px] text-center text-xs text-red-500">
+                {avatarError}
+              </p>
+            ) : null}
+            <p className="max-w-[120px] text-center text-[10px] text-slate-400">
+              支持 JPG、PNG、WebP、GIF，最大 5MB
+            </p>
             </div>
-          )}
+          </div>
 
           <div className="flex flex-1 flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2">
@@ -493,6 +559,12 @@ export default function MemberDetailPageClient({
           )}
         </section>
       </div>
+
+      <RelationshipInferencePanel
+        familyId={familyId}
+        memberId={memberId}
+        memberName={member.fullName}
+      />
 
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold text-slate-900">

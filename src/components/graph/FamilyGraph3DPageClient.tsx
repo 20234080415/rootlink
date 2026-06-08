@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import GraphModeSwitch from "@/components/graph/GraphModeSwitch";
+import GraphRelationshipSummary from "@/components/graph/GraphRelationshipSummary";
 import ForceGraph3D, {
   type ForceGraphMethods,
   type GraphData,
@@ -17,6 +19,7 @@ type RelationshipType = "PARENT_OF" | "SPOUSE_OF" | "SIBLING_OF";
 type StarNode = {
   id: string;
   name: string;
+  avatarUrl: string | null;
   memberId: string;
   birthYear: number | null;
   deathYear: number | null;
@@ -46,6 +49,8 @@ const RELATIONSHIP_COLORS: Record<string, string> = {
   SPOUSE_OF: "#fb7185",
   SIBLING_OF: "#34d399",
 };
+
+const avatarTextureCache = new Map<string, THREE.CanvasTexture>();
 
 function isStarNode(value: StarGraphLink["source"]): value is StarGraphNode {
   return typeof value === "object" && value !== null;
@@ -93,6 +98,7 @@ function buildGraphData(payload: FamilyGraphPayload): StarGraphData {
     nodes: payload.nodes.map((node) => ({
       id: node.id,
       name: node.data.fullName,
+      avatarUrl: node.data.avatarUrl,
       memberId: node.data.memberId,
       birthYear: node.data.birthYear,
       deathYear: node.data.deathYear,
@@ -119,20 +125,150 @@ function createNodeObject(
   const isSelected = nodeId === selectedNodeId;
   const isNeighbor = neighborIds.has(nodeId);
 
-  const color = isSelected ? "#fef3c7" : isNeighbor ? "#bfdbfe" : "#e0f2fe";
-  const emissive = isSelected ? "#f59e0b" : isNeighbor ? "#38bdf8" : "#0ea5e9";
+  const group = new THREE.Group();
+  const ringColor = isSelected ? "#fbbf24" : isNeighbor ? "#38bdf8" : "#93c5fd";
 
-  const geometry = new THREE.SphereGeometry(radius, 24, 24);
-  const material = new THREE.MeshPhongMaterial({
-    color,
-    emissive,
-    emissiveIntensity: isSelected ? 1.7 : isNeighbor ? 0.8 : 0.35,
+  const glowGeometry = new THREE.SphereGeometry(radius * 0.88, 24, 24);
+  const glowMaterial = new THREE.MeshBasicMaterial({
+    color: ringColor,
+    transparent: true,
+    opacity: Math.min(opacity, isSelected ? 0.42 : 0.2),
+    depthWrite: false,
+    depthTest: false,
+  });
+  const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+  glow.renderOrder = 1;
+  group.add(glow);
+
+  const avatarTexture = createAvatarTexture(node);
+  const avatarMaterial = new THREE.SpriteMaterial({
+    map: avatarTexture,
     transparent: true,
     opacity,
-    shininess: 80,
+    depthWrite: false,
+    depthTest: false,
   });
+  const avatar = new THREE.Sprite(avatarMaterial);
+  avatar.scale.set(radius * 2.45, radius * 2.45, 1);
+  avatar.renderOrder = 10;
+  group.add(avatar);
 
-  return new THREE.Mesh(geometry, material);
+  return group;
+}
+
+function createAvatarTexture(node: StarGraphNode) {
+  const cacheKey = `${node.id}:${node.avatarUrl ?? "initials"}:${node.name}`;
+  const cached = avatarTextureCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 256;
+
+  drawInitialsAvatar(canvas, node.name);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  avatarTextureCache.set(cacheKey, texture);
+
+  if (node.avatarUrl) {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => {
+      drawPhotoAvatar(canvas, image);
+      texture.needsUpdate = true;
+    };
+    image.onerror = () => {
+      drawInitialsAvatar(canvas, node.name);
+      texture.needsUpdate = true;
+    };
+    image.src = node.avatarUrl;
+  }
+
+  return texture;
+}
+
+function drawInitialsAvatar(canvas: HTMLCanvasElement, name: string) {
+  const context = canvas.getContext("2d");
+  if (context) {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    const gradient = context.createLinearGradient(0, 0, 256, 256);
+    gradient.addColorStop(0, "#bae6fd");
+    gradient.addColorStop(1, "#312e81");
+    context.save();
+    context.beginPath();
+    context.arc(128, 128, 118, 0, Math.PI * 2);
+    context.clip();
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 256, 256);
+    context.restore();
+
+    context.fillStyle = "rgba(255,255,255,0.92)";
+    context.font = "700 76px Arial";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(getInitials(name), 128, 132);
+
+    drawAvatarBorder(context);
+  }
+}
+
+function drawPhotoAvatar(canvas: HTMLCanvasElement, image: HTMLImageElement) {
+  const context = canvas.getContext("2d");
+  if (!context) return;
+
+  const size = 256;
+  const sourceSize = Math.min(image.naturalWidth, image.naturalHeight);
+  const sourceX = (image.naturalWidth - sourceSize) / 2;
+  const sourceY = (image.naturalHeight - sourceSize) / 2;
+
+  context.clearRect(0, 0, size, size);
+  context.save();
+  context.beginPath();
+  context.arc(size / 2, size / 2, 118, 0, Math.PI * 2);
+  context.clip();
+  context.drawImage(
+    image,
+    sourceX,
+    sourceY,
+    sourceSize,
+    sourceSize,
+    10,
+    10,
+    236,
+    236
+  );
+  context.restore();
+
+  drawAvatarBorder(context);
+}
+
+function drawAvatarBorder(context: CanvasRenderingContext2D) {
+  context.beginPath();
+  context.arc(128, 128, 120, 0, Math.PI * 2);
+  context.lineWidth = 12;
+  context.strokeStyle = "rgba(186,230,253,0.92)";
+  context.stroke();
+
+  context.beginPath();
+  context.arc(128, 128, 126, 0, Math.PI * 2);
+  context.lineWidth = 3;
+  context.strokeStyle = "rgba(251,191,36,0.78)";
+  context.stroke();
+}
+
+function getInitials(name: string) {
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "?"
+  );
 }
 
 function getMemberDates(node: StarGraphNode) {
@@ -323,17 +459,12 @@ export default function FamilyGraph3DPageClient({
           </div>
 
           <nav className="flex flex-wrap items-center gap-2">
+            <GraphModeSwitch familyId={familyId} activeMode="3d" tone="dark" />
             <Link
               href={`/families/${familyId}`}
               className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/10"
             >
               返回家族主页
-            </Link>
-            <Link
-              href={`/families/${familyId}/graph`}
-              className="rounded-lg border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-sm font-medium text-cyan-100 transition hover:bg-cyan-300/20"
-            >
-              返回 2D 关系图
             </Link>
             {selectedNode ? (
               <button
@@ -368,6 +499,16 @@ export default function FamilyGraph3DPageClient({
               <p className="mt-1 text-xs text-slate-400">
                 连接度：{selectedNode.degree}
               </p>
+              <div className="mt-3 border-t border-white/10 pt-3">
+                <p className="mb-2 text-xs font-semibold text-cyan-100">
+                  推导关系摘要
+                </p>
+                <GraphRelationshipSummary
+                  familyId={familyId}
+                  memberId={selectedNode.memberId}
+                  tone="dark"
+                />
+              </div>
             </div>
           ) : (
             <p className="border-t border-white/10 pt-3 text-xs text-slate-400">
@@ -418,14 +559,14 @@ export default function FamilyGraph3DPageClient({
               const targetId = getEndpointId(link.target);
               return selectedNodeId &&
                 (sourceId === selectedNodeId || targetId === selectedNodeId)
-                ? 2.6
-                : 0.9;
+                ? 1.8
+                : 0.55;
             }}
             linkDirectionalArrowLength={(link) =>
               link.relationshipType === "PARENT_OF" ? 4 : 0
             }
             linkDirectionalArrowRelPos={0.82}
-            linkOpacity={0.72}
+            linkOpacity={0.46}
             cooldownTicks={120}
             warmupTicks={80}
             d3VelocityDecay={0.35}

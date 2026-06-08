@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import FamilyGraphView from "@/components/graph/FamilyGraphView";
+import GraphModeSwitch from "@/components/graph/GraphModeSwitch";
 import RelationshipCreateDrawer from "@/components/graph/RelationshipCreateDrawer";
 import type {
   FamilyGraphPayload,
@@ -123,6 +124,7 @@ export default function FamilyGraphPageClient({
           <span className="text-xs text-slate-400">
             {payload.nodes.length} 成员 · {payload.edges.length} 关系
           </span>
+          <GraphModeSwitch familyId={familyId} activeMode="2d" />
           <button
             type="button"
             onClick={() => {

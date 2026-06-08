@@ -34,6 +34,7 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-020：Member 编辑 API
 - Task-021：成员编辑前端表单
 - Task-022：3D Family Graph 原型页面
+- Task-030：Relationship Inference Engine（关系推导引擎）
 
 当前还没有实现登录等页面逻辑。
 
@@ -131,6 +132,22 @@ GET /api/v1/families/{familyId}/members/{memberId}
 
 该接口当前只返回单个 member 的基础资料、biography、timeline events 和关系摘要，不提供创建、更新、删除、上传或登录鉴权。
 
+读取成员关系推导：
+
+```bash
+GET /api/v1/families/{familyId}/members/{memberId}/relationships/inferred
+```
+
+该接口不新增数据库关系类型，只基于 PARENT_OF、SPOUSE_OF、SIBLING_OF 实时推导父母、祖父母、兄弟姐妹、配偶、伯叔姑、舅姨和堂表兄妹。
+
+分析两个成员之间的关系路径：
+
+```bash
+GET /api/v1/families/{familyId}/relationships/path?fromMemberId={fromMemberId}&toMemberId={toMemberId}
+```
+
+该接口使用 BFS 搜索基础关系图，返回成员路径、基础步骤和中文关系称谓。
+
 读取 family graph payload：
 
 ```bash
@@ -153,7 +170,7 @@ http://localhost:3000/families/{familyId}
 http://localhost:3000/families/{familyId}/graph
 ```
 
-该页面使用 React Flow 渲染交互式家族关系图，支持缩放、拖拽和 member 节点点击（跳转成员详情页）。页面提供"创建关系"按钮，点击后打开右侧抽屉表单，可创建 PARENT_OF / SPOUSE_OF / SIBLING_OF 关系。边缘使用不同颜色标注关系类型，节点按出生年代自动分层布局。2D graph 主要用于编辑和管理。
+该页面使用 React Flow 渲染交互式家族关系图，支持缩放、拖拽和 member 节点点击。点击节点后会在图谱内打开节点详情卡片，展示成员基础信息、关系推导摘要和"查看成员详情"按钮。页面提供"创建关系"按钮，点击后打开右侧抽屉表单，可创建 PARENT_OF / SPOUSE_OF / SIBLING_OF 关系。边缘使用不同颜色标注关系类型，节点按出生年代自动分层布局。2D graph 主要用于编辑和管理。
 
 打开 3D family graph 页面：
 
@@ -161,7 +178,7 @@ http://localhost:3000/families/{familyId}/graph
 http://localhost:3000/families/{familyId}/graph-3d
 ```
 
-该页面使用 `react-force-graph-3d` 渲染沉浸式 3D 家族星图，复用 `GET /api/v1/families/{familyId}/graph` 数据，不修改 Prisma schema 和现有 API。节点按连接度动态改变大小，点击节点会自动聚焦并高亮相邻节点，双击节点或点击"查看详情"可跳转成员详情页。3D graph 主要用于沉浸浏览和关系探索；2D graph 继续作为编辑和管理模式。
+该页面使用 `react-force-graph-3d` 渲染沉浸式 3D 家族星图，复用 `GET /api/v1/families/{familyId}/graph` 数据，不修改 Prisma schema 和现有 API。节点按连接度动态改变大小，点击节点会自动聚焦并高亮相邻节点，选中信息卡会展示关系推导摘要；双击节点或点击"查看详情"可跳转成员详情页。3D graph 主要用于沉浸浏览和关系探索；2D graph 继续作为编辑和管理模式。
 
 打开 member detail 页面：
 
@@ -170,6 +187,8 @@ http://localhost:3000/families/{familyId}/members/{memberId}
 ```
 
 该页面展示成员基本信息（姓名、头像/initials、生卒年份、bioShort、maintenance role、source）、传记（Markdown 文本，点击"编辑传记"可修改内容）、时间线事件列表（点击"创建事件"可添加新事件）和关系摘要。顶部提供"编辑成员"按钮，跳转编辑表单页面。
+
+成员详情页支持本地头像上传。头像文件保存到 `D:\rootlink头像文件夹`，成员记录中的 `avatarUrl` 保存为站内图片读取接口地址；2D graph 和 3D graph 会自动使用该头像展示节点。
 
 打开成员编辑页面：
 
