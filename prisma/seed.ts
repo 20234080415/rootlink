@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { createHash } from "node:crypto";
 import {
   DataSource,
@@ -391,6 +392,14 @@ async function main() {
   await prisma.family.deleteMany({
     where: {
       slug: "tang-demo-family",
+    },
+  });
+
+  await prisma.user.deleteMany({
+    where: {
+      email: {
+        in: users.map((user) => user.email),
+      },
     },
   });
 

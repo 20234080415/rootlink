@@ -21,7 +21,7 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Next.js App Router
 - TypeScript
 - Tailwind CSS
-- Prisma
+- Prisma 6.19.3
 - PostgreSQL
 - React Flow
 
