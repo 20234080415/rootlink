@@ -3,7 +3,11 @@ import { prisma } from "@/server/db/prisma";
 
 export type FamilyGraphNode = {
   id: string;
-  type: "member";
+  type: "memberNode";
+  position: {
+    x: number;
+    y: number;
+  };
   data: {
     memberId: string;
     fullName: string;
@@ -20,7 +24,7 @@ export type FamilyGraphEdge = {
   id: string;
   source: string;
   target: string;
-  type: "relationship";
+  type: "smoothstep";
   data: {
     relationshipId: string;
     relationshipType: string;
@@ -49,6 +53,17 @@ export type FamilyGraphMeta = {
 function extractYear(value: Date | null): number | null {
   if (!value) return null;
   return value.getFullYear();
+}
+
+function getInitialPosition(index: number) {
+  const columns = 5;
+  const column = index % columns;
+  const row = Math.floor(index / columns);
+
+  return {
+    x: column * 240,
+    y: row * 160,
+  };
 }
 
 export async function readFamilyGraph(
@@ -112,9 +127,10 @@ export async function readFamilyGraph(
     }),
   ]);
 
-  const nodes: FamilyGraphNode[] = members.map((member) => ({
+  const nodes: FamilyGraphNode[] = members.map((member, index) => ({
     id: member.id,
-    type: "member",
+    type: "memberNode",
+    position: getInitialPosition(index),
     data: {
       memberId: member.id,
       fullName: member.fullName,
@@ -131,7 +147,7 @@ export async function readFamilyGraph(
     id: relationship.id,
     source: relationship.subjectMemberId,
     target: relationship.objectMemberId,
-    type: "relationship",
+    type: "smoothstep",
     data: {
       relationshipId: relationship.id,
       relationshipType: relationship.relationshipType,
