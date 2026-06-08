@@ -21,6 +21,7 @@ RootLink 是一个家族数字记忆平台 V1。产品方向、数据库设计�
 - Task-007：只读 Member detail API
 - Task-008：只读 family graph payload API
 - Task-009：只读 Family Dashboard 页面
+- Task-010：只读 Family Graph 前端页面（React Flow 渲染）
 
 当前还没有实现登录、成员 CRUD、图谱编辑等页面逻辑。
 
@@ -133,6 +134,14 @@ http://localhost:3000/families/{familyId}
 
 该页面展示 family 名称、统计卡片（成员数、关系数、传记数、时间线事件数）和 View Graph 导航按钮。支持 loading 骨架屏和错误状态。
 
+打开 family graph 页面：
+
+```bash
+http://localhost:3000/families/{familyId}/graph
+```
+
+该页面使用 React Flow 渲染交互式家族关系图，支持缩放、拖拽和 member 节点点击（跳转成员详情页）。边缘使用不同颜色标注 PARENT_OF / SPOUSE_OF / SIBLING_OF 关系类型。节点按出生年代自动分层布局，无出生年份的成员排在末尾。
+
 成功响应格式：
 
 ```json
@@ -170,11 +179,12 @@ seed 脚本可以重复执行。它会先清理 `tang-demo-family` 这一组 dem
 - 登录
 - API 业务逻辑（健康检查、最小 Family 读取、只读 Member detail、只读 graph payload 除外）
 - 成员 CRUD 页面和接口
-- 关系图编辑
+- 关系图编辑和创建
+- Member detail 前端页面
 - AI
 - 上传
 - 支付
 
 ## 下一步建议
 
-Task-010：实现 Family Graph 前端页面（`/families/[familyId]/graph`），调用 graph API 并使用 React Flow 渲染。
+Task-011：实现 Member detail 前端页面（`/families/[familyId]/members/[memberId]`），调用 member API 展示成员信息、传记、时间线和关系。
